@@ -14,37 +14,38 @@ exports.createCourse = async (req, res) => {
     const userId = req.user.id
 
     // Get all required fields from request body
+    console.log("req.body : ",req.body)
     let {
       courseName,
       courseDescription,
-      whatYouWillLearn,
+      subDescription,
       price,
-      tag: _tag,
-      category,
+      keyAreas: _keyAreas,
+      // category,
       status,
-      instructions: _instructions,
+      // instructions: _instructions,
     } = req.body
 
     // Get thumbnail image from request files
     const thumbnail = req.files.thumbnailImage
 
-    // Convert the tag and instructions from stringified Array to Array
-    const tag = JSON.parse(_tag)
-    const instructions = JSON.parse(_instructions)
+    // Convert the keyAreas and instructions from stringified Array to Array
+    const keyAreas = JSON.parse(_keyAreas)
+    // const instructions = JSON.parse(_instructions)
 
-    console.log("tag", tag)
-    console.log("instructions", instructions)
+    console.log("keyAreas", keyAreas)
+    // console.log("instructions", instructions)
 
     // Check if any of the required fields are missing
     if (
       !courseName ||
       !courseDescription ||
-      !whatYouWillLearn ||
+      !subDescription ||
       !price ||
-      !tag.length ||
-      !thumbnail ||
-      !category ||
-      !instructions.length
+      !keyAreas.length ||
+      !thumbnail 
+      // !category ||
+      // !instructions.length
     ) {
       return res.status(400).json({
         success: false,
@@ -66,14 +67,14 @@ exports.createCourse = async (req, res) => {
       })
     }
 
-    // Check if the tag given is valid
-    const categoryDetails = await Category.findById(category)
-    if (!categoryDetails) {
-      return res.status(404).json({
-        success: false,
-        message: "Category Details Not Found",
-      })
-    }
+    // Check if the keyAreas given is valid
+    // const categoryDetails = await Category.findById(category)
+    // if (!categoryDetails) {
+    //   return res.status(404).json({
+    //     success: false,
+    //     message: "Category Details Not Found",
+    //   })
+    // }
     // Upload the Thumbnail to Cloudinary
     const thumbnailImage = await uploadImageToCloudinary(
       thumbnail,
@@ -85,13 +86,13 @@ exports.createCourse = async (req, res) => {
       courseName,
       courseDescription,
       instructor: instructorDetails._id,
-      whatYouWillLearn: whatYouWillLearn,
+      subDescription: subDescription,
       price,
-      tag,
-      category: categoryDetails._id,
+      keyAreas,
+      // category: categoryDetails._id,
       thumbnail: thumbnailImage.secure_url,
       status: status,
-      instructions,
+      // instructions,
     })
 
     // Add the new course to the User Schema of the Instructor
@@ -107,16 +108,16 @@ exports.createCourse = async (req, res) => {
       { new: true }
     )
     // Add the new course to the Categories
-    const categoryDetails2 = await Category.findByIdAndUpdate(
-      { _id: category },
-      {
-        $push: {
-          courses: newCourse._id,
-        },
-      },
-      { new: true }
-    )
-    console.log("HEREEEEEEEE", categoryDetails2)
+    // const categoryDetails2 = await Category.findByIdAndUpdate(
+    //   { _id: category },
+    //   {
+    //     $push: {
+    //       courses: newCourse._id,
+    //     },
+    //   },
+    //   { new: true }
+    // )
+    // console.log("HEREEEEEEEE", categoryDetails2)
     // Return the new course and a success message
     res.status(200).json({
       success: true,
@@ -158,7 +159,7 @@ exports.editCourse = async (req, res) => {
     // Update only the fields that are present in the request body
     for (const key in updates) {
       if (updates.hasOwnProperty(key)) {
-        if (key === "tag" || key === "instructions") {
+        if (key === "keyAreas" || key === "instructions") {
           course[key] = JSON.parse(updates[key])
         } else {
           course[key] = updates[key]
@@ -177,7 +178,7 @@ exports.editCourse = async (req, res) => {
           path: "additionalDetails",
         },
       })
-      .populate("category")
+      // .populate("category")
       .populate("ratingAndReviews")
       .populate({
         path: "courseContent",
@@ -206,18 +207,12 @@ exports.editCourse = async (req, res) => {
 exports.getAllCourses = async (req, res) => {
   try {
     const allCourses = await Course.find(
-      { status: "Published" },
-      {
-        courseName: true,
-        price: true,
-        thumbnail: true,
-        instructor: true,
-        ratingAndReviews: true,
-        studentsEnrolled: true,
-      }
+      { status: "Published" }
     )
       .populate("instructor")
       .exec()
+
+      // console.log("Allcourse Details : ", allCourses);
 
     return res.status(200).json({
       success: true,
@@ -297,7 +292,7 @@ exports.getCourseDetails = async (req, res) => {
           path: "additionalDetails",
         },
       })
-      .populate("category")
+      // .populate("category")
       .populate("ratingAndReviews")
       .populate({
         path: "courseContent",
@@ -360,7 +355,7 @@ exports.getFullCourseDetails = async (req, res) => {
           path: "additionalDetails",
         },
       })
-      .populate("category")
+      // .populate("category")
       .populate("ratingAndReviews")
       .populate({
         path: "courseContent",

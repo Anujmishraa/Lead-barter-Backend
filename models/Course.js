@@ -9,7 +9,7 @@ const coursesSchema = new mongoose.Schema({
     required: true,
     ref: "user",
   },
-  whatYouWillLearn: {
+  subDescription: {
     type: String,
   },
   courseContent: [
@@ -30,15 +30,15 @@ const coursesSchema = new mongoose.Schema({
   thumbnail: {
     type: String,
   },
-  tag: {
+  keyAreas: {
     type: [String],
     required: true,
   },
-  category: {
-    type: mongoose.Schema.Types.ObjectId,
-    // required: true,
-    ref: "Category",
-  },
+  // category: {
+  //   type: mongoose.Schema.Types.ObjectId,
+  //   // required: true,
+  //   ref: "Category",
+  // },
   studentsEnroled: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -46,9 +46,9 @@ const coursesSchema = new mongoose.Schema({
       ref: "user",
     },
   ],
-  instructions: {
-    type: [String],
-  },
+  // instructions: {
+  //   type: [String],
+  // },
   status: {
     type: String,
     enum: ["Draft", "Published"],

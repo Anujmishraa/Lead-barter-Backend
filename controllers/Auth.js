@@ -19,7 +19,7 @@ exports.signup = async (req, res) => {
       email,
       password,
       confirmPassword,
-      accountType,
+      accountType = "Student",
       contactNumber,
       otp,
     } = req.body
